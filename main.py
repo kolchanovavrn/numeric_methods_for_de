@@ -46,46 +46,41 @@ class Graph_builder:
             self.diff_exact_imp_euler.append(abs(self.y_exact[i] - self.y_imp_euler[i]))
             self.diff_exact_rk.append(abs(self.y_exact[i] - self.y_fk[i]))
 
-    def build(self, what,  input_parameters, show=False):
+    def build(self,  input_parameters, show=False):
         num_operations_temp = NumericOperations()
 
         # Values for each line of graph, describing how all of them will look like, define markers
-        exact_line, euler_line, imp_euler_line, fk_line = pylab.plot(self.x_common, self.y_exact, 'm-',self.x_common, self.y_euler, 'b-', self.x_common, y_imp_euler, 'g-', x_common,
-                                                         self.y_fk, 'c-')
+        pylab.subplot(211)
+        exact_line, euler_line, imp_euler_line, fk_line = pylab.plot(self.x_common, self.y_exact, 'm-',self.x_common, self.y_euler, 'b-', self.x_common, self.y_imp_euler, 'g-', self.x_common,
+                                                             self.y_fk, 'c-')
         # X and Y axis intervals
         pylab.title(u'Numeric methods solution of differential equation')
         pylab.xlabel(u'x axis')
         pylab.ylabel(u'y axis')
 
         pylab.legend((exact_line,euler_line, imp_euler_line, fk_line),
-                     (u'Exact Solution' ,u'Euler Method ', u'Improved Euler Method ', u'Runge-Kutta Method'), loc='best')
-
-        # Включаем сетку
-
+                         (u'Exact Solution' ,u'Euler Method ', u'Improved Euler Method ', u'Runge-Kutta Method'), loc='best')
         pylab.grid()
-        pylab.show()
-        # Сохраняем построенную диаграмму в файл
-        # Задаем имя файла и его тип
 
-        pylab.savefig('./static/' + what + '.png', format='png')
-        if show:
-            pylab.show()
 
-    def build_errors(self):
-
-        err_euler_line, err_imp_euler_line, err_fk_line = pylab.plot(self.x_common, self.diff_exact_euler, 'm-', self.x_common, self.diff_exact_imp_euler,
-                                                                         'b-', self.x_common, self.diff_exact_rk, 'g-')
-
+        pylab.subplot(212)
+        err_euler_line, err_imp_euler_line, err_fk_line = pylab.plot(self.x_common, self.diff_exact_euler, 'm-',
+                                                                     self.x_common, self.diff_exact_imp_euler,
+                                                                     'b-', self.x_common, self.diff_exact_rk, 'g-')
         pylab.title(u'Approximation error of numeric methods solution of differential equation')
         pylab.xlabel(u'x axis')
         pylab.ylabel(u'y axis')
-
         pylab.legend((err_euler_line, err_imp_euler_line, err_fk_line),
-                         (u'Euler Method ', u'Improved Euler Method ', u'Runge-Kutta Method'),
-                         loc='best')
-
+                     (u'Euler Method ', u'Improved Euler Method ', u'Runge-Kutta Method'),
+                     loc='best')
         pylab.grid()
         pylab.show()
+
+        # Сохраняем построенную диаграмму в файл
+        # Задаем имя файла и его тип
+        pylab.savefig('./static/graphs.png', format='png')
+        # if show:
+        #     pylab.show()
 
 class NumericOperations:
 
@@ -221,34 +216,9 @@ class Methods:
 
 
 # input - [x_initial, y_initial, diapazone_start, diapazone_end, h]
-
-
-# output = [[] for k in range(3)]
 # methods = Methods()
 
-# output[n]- n - table of the values created by method
-# ------------------------------------------------------------------------------------
-# indexes
-# n [0] - Euler Method
-# n [1] - Improved Euler Method
-# n [2] - Runge-Kutta Method
-# ------------------------------------------------------------------------------------
 # input - [x_initial, y_initial, diapazone_start, diapazone_end, h]
-
-# input = [1, 1, 1, 3]
-
-# ---------------
-# first equation
-# ----------------
-# methods.euler_method(output[0], input)
-# methods.improved_euler_method(output[1], input)
-# methods.runge_kutta_method(output[2], input)
-#
-#
-# for i in result[0]:
-#     print("{0:.2f}, {0:.2f}".format(*i))
-#     # print(f"({# i[0]},{i[1]})")
-#     # print("(" + str(i[0]) + ";" + str(i[1]) +")")
 
 # TESTING PART
 
@@ -257,7 +227,9 @@ builder = Graph_builder()
 
 # builder.build('methods_graph', input_temp)
 builder.set_inf(input_temp)
-builder.build()
+builder.build('methods',input_temp)
+
+
 # from flask import Flask, render_template, request
 # app = Flask(__name__)
 #
@@ -277,7 +249,7 @@ builder.build()
 #             input[i] = temp
 #
 #         builder = Graph_builder()
-#         builder.build('methods_graph', input)
+#         builder.build(input)
 #
 #         # # output = [[] for k in range(3)]
 #         # methods = Methods()
