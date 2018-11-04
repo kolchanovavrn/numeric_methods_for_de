@@ -12,58 +12,80 @@ from matplotlib import pyplot as pylab
 #
 
 class Graph_builder:
-    # input_temp = [1, 1, 1, 3, 0.01]
 
-    def get_points(self, arg, input_parameters ):
+    def __init__(self):
+        self.x_common = []
+        self.y_exact = []
+        self.y_euler = []
+        self.y_imp_euler = []
+        self.y_fk = []
+        self.diff_exact_euler = []
+        self.diff_exact_imp_euler = []
+        self.diff_exact_rk = []
+
+    def get_points(self, arg, input_parameters):
         methods = Methods()
+        if arg == 'exact':
+            self.x_common = methods.exact_solution(input_parameters)[0]
+            self.y_exact = methods.exact_solution(input_parameters)[1]
         if arg == 'euler':
-            out = methods.euler_method(input_parameters)
+            self.y_euler = methods.euler_method(input_parameters)[1]
         if arg == 'euler_imp':
-            out = methods.improved_euler_method(input_parameters)
+            self.y_imp_euler = methods.improved_euler_method(input_parameters)[1]
         if arg == 'rk':
-            out = methods.runge_kutta_method(input_parameters)
-        return out
+            self.y_fk = methods.runge_kutta_method(input_parameters)[1]
+
+    def set_inf(self, input_parameters):
+        self.get_points('exact', input_parameters)
+        self.get_points('euler', input_parameters)
+        self.get_points('euler_imp', input_parameters)
+        self.get_points('rk', input_parameters)
+
+        for i in range(len(self.y_exact)):
+            self.diff_exact_euler.append(abs(self.y_exact[i] - self.y_euler[i]))
+            self.diff_exact_imp_euler.append(abs(self.y_exact[i] - self.y_imp_euler[i]))
+            self.diff_exact_rk.append(abs(self.y_exact[i] - self.y_fk[i]))
 
     def build(self, what,  input_parameters, show=False):
-        output_temp = [[] for k in range(3)]
         num_operations_temp = NumericOperations()
-        output_temp[0] = self.get_points('euler', input_parameters)
-        output_temp[1] = self.get_points('euler_imp', input_parameters)
-        output_temp[2] = self.get_points('rk', input_parameters)
-
-        x_common = output_temp[0][0]
-        y_euler = output_temp[0][1]
-        y_imp_euler = output_temp[1][1]
-        y_fk = output_temp[2][1]
 
         # Values for each line of graph, describing how all of them will look like, define markers
-        euler_line, imp_euler_line, fk_line = pylab.plot(x_common, y_euler, 'b-', x_common, y_imp_euler, 'g-', x_common,
-                                                         y_fk, 'm-')
-
+        exact_line, euler_line, imp_euler_line, fk_line = pylab.plot(self.x_common, self.y_exact, 'm-',self.x_common, self.y_euler, 'b-', self.x_common, y_imp_euler, 'g-', x_common,
+                                                         self.y_fk, 'c-')
         # X and Y axis intervals
-        # input - [x_initial, y_initial, diapazone_start, diapazone_end, h]
-        x_start = input_parameters[2] - 2
-        x_finish = input_parameters[3] + 2
-        y_start = int(num_operations_temp.find_value(min, [y_euler, y_imp_euler, y_fk])) + 0.5
-        y_finish = int(num_operations_temp.find_value(max, [y_euler, y_imp_euler, y_fk])) + 2
-
-        pylab.axis([x_start, x_finish, y_start, y_finish], 'tight')
-
         pylab.title(u'Numeric methods solution of differential equation')
         pylab.xlabel(u'x axis')
         pylab.ylabel(u'y axis')
 
-        pylab.legend((euler_line, imp_euler_line, fk_line),
-                     (u'Euler Method ', u'Improved Euler Method ', u'Runge-Kutta Method'), loc='best')
+        pylab.legend((exact_line,euler_line, imp_euler_line, fk_line),
+                     (u'Exact Solution' ,u'Euler Method ', u'Improved Euler Method ', u'Runge-Kutta Method'), loc='best')
 
         # Включаем сетку
 
         pylab.grid()
+        pylab.show()
         # Сохраняем построенную диаграмму в файл
         # Задаем имя файла и его тип
+
         pylab.savefig('./static/' + what + '.png', format='png')
         if show:
             pylab.show()
+
+    def build_errors(self):
+
+        err_euler_line, err_imp_euler_line, err_fk_line = pylab.plot(self.x_common, self.diff_exact_euler, 'm-', self.x_common, self.diff_exact_imp_euler,
+                                                                         'b-', self.x_common, self.diff_exact_rk, 'g-')
+
+        pylab.title(u'Approximation error of numeric methods solution of differential equation')
+        pylab.xlabel(u'x axis')
+        pylab.ylabel(u'y axis')
+
+        pylab.legend((err_euler_line, err_imp_euler_line, err_fk_line),
+                         (u'Euler Method ', u'Improved Euler Method ', u'Runge-Kutta Method'),
+                         loc='best')
+
+        pylab.grid()
+        pylab.show()
 
 class NumericOperations:
 
@@ -79,7 +101,6 @@ class NumericOperations:
                         value = i
         return value
 
-
 class Methods:
 
     # my equation is 13th:
@@ -87,6 +108,42 @@ class Methods:
 
     def get_value(self, x, y):
         return math.sin(x)**2 + y / math.tan(x)
+
+
+    def get_const(self, x0, y0):
+        return  (y0 + math.sin(x0)*math.cos(x0))/math.sin(x0)
+
+    def exact_solution(self, input):
+        # input - [x_initial, y_initial, diapazone_start, diapazone_end, h]
+        x0 = input[0]
+        y0 = input[1]
+        h = input[4]
+        pointer = input[2]
+
+        table_x = []
+        table_y = []
+
+        const = self.get_const(x0, y0)
+
+        while (pointer <= input[3]):
+            if not table_x:
+                table_x.append(input[0])
+                table_y.append(input[1])
+            else:
+                x_i = table_x[len(table_x) - 1]
+
+                # general sol is y = sin(x) * C - sin(x) * cos(x)
+                x_next = x_i + h
+                y_next = math.sin(x_next)*const - math.sin(x_next)*math.cos(x_next)
+
+
+                table_x.append(x_next)
+                table_y.append(y_next)
+                pointer += h
+
+        table = [table_x, table_y]
+        return table
+
 
     def euler_method(self, input):
         table_x = []
@@ -161,6 +218,8 @@ class Methods:
                 pointer += h
         table = [table_x, table_y]
         return table
+
+
 # input - [x_initial, y_initial, diapazone_start, diapazone_end, h]
 
 
@@ -191,40 +250,43 @@ class Methods:
 #     # print(f"({# i[0]},{i[1]})")
 #     # print("(" + str(i[0]) + ";" + str(i[1]) +")")
 
-# input_temp = [1, 1, 1, 3, 0.01]
-# builder = Graph_builder()
-#
+# TESTING PART
+
+input_temp = [1, 1, 1, 3, 0.01]
+builder = Graph_builder()
+
 # builder.build('methods_graph', input_temp)
-
-from flask import Flask, render_template, request
-app = Flask(__name__)
-
-@app.route('/')
-def start():
-    return render_template('index.html')
-
-@app.route('/result', methods = ['POST', 'GET'])
-def result():
-    if request.method == 'POST':
-        dictionary =  request.form
-
-        input = [dictionary['x_initial'],dictionary['y_initial'],dictionary['diapazone_start'],dictionary['diapazone_end'],dictionary['h']]
-
-        for i in range(len(input)):
-            temp = float(input[i])
-            input[i] = temp
-
-        builder = Graph_builder()
-        builder.build('methods_graph', input)
-
-        # # output = [[] for k in range(3)]
-        # methods = Methods()
-        # graphs = Graph_builder()
-        # methods.euler_method(input)
-
-        return render_template("result.html", result = input)
-    else:
-        return render_template("result.html")
-
-if __name__ == '__main__':
-    app.run(debug=True)
+builder.set_inf(input_temp)
+builder.build()
+# from flask import Flask, render_template, request
+# app = Flask(__name__)
+#
+# @app.route('/')
+# def start():
+#     return render_template('index.html')
+#
+# @app.route('/result', methods = ['POST', 'GET'])
+# def result():
+#     if request.method == 'POST':
+#         dictionary =  request.form
+#
+#         input = [dictionary['x_initial'],dictionary['y_initial'],dictionary['diapazone_start'],dictionary['diapazone_end'],dictionary['h']]
+#
+#         for i in range(len(input)):
+#             temp = float(input[i])
+#             input[i] = temp
+#
+#         builder = Graph_builder()
+#         builder.build('methods_graph', input)
+#
+#         # # output = [[] for k in range(3)]
+#         # methods = Methods()
+#         # graphs = Graph_builder()
+#         # methods.euler_method(input)
+#
+#         return render_template("result.html", result = input)
+#     else:
+#         return render_template("result.html")
+#
+# if __name__ == '__main__':
+#     app.run(debug=True)
