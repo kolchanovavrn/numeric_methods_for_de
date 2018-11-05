@@ -1,21 +1,15 @@
 
-from graph_builder import Graph_builder
+from graphbuilder import GraphBuilder
 
 #TO_DO
-# 1. Solve and check the result
-# 2. Add some functions and restruct to OOP requirements
-# 3. Add graph drawing
-# 4. Submit to Github
-# 5. Add comments
-# Optional: 6. Add graphical interface
-#
+# 1. Fix graph view
+# 2. Fix
 
 # TESTING PART
 
 input_temp = [1, 1, 1, 3, 0.01]
-builder = Graph_builder()
-builder.set_inf(input_temp)
-builder.build('methods',input_temp)
+builder = GraphBuilder()
+builder.build(input_temp)
 
 
 # from flask import Flask, render_template, request
