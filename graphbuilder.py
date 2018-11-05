@@ -82,8 +82,6 @@ class GraphBuilder:
         #  figure.figsize и figure.dpi (свойства можно задать, разумеется и через структуру rcParams,
         pylab.grid()
 
-        pylab.show()
-
         #Save the resulting image, that contain pictures of both graphs to the special directory
         pylab.savefig('./static/graphs.png', format='png')
         if show:
