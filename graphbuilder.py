@@ -31,19 +31,33 @@ class GraphBuilder:
         # Set values given by Numeric methods
         # ------------------------------------------------
 
+        methods.set_x(input_parameters, self.x_common)
+
         methods.exact_solution(input_parameters, self.x_common, self.y_exact)
-        methods.euler_method(input_parameters, self.y_euler)
-        methods.improved_euler_method(input_parameters, self.y_imp_euler)
-        methods.runge_kutta_method(input_parameters, self.y_fk)
+        methods.euler_method(input_parameters, self.x_common, self.y_euler)
+        methods.improved_euler_method(input_parameters,self.x_common, self.y_imp_euler)
+        methods.runge_kutta_method(input_parameters,self.x_common, self.y_fk)
 
         # ------------------------------------------------
-        # Set values of approximation errors
+        # Set values of Local approximation errors
         # ------------------------------------------------
 
         for i in range(len(self.y_exact)):
             self.diff_exact_euler.append(abs(self.y_exact[i] - self.y_euler[i]))
             self.diff_exact_imp_euler.append(abs(self.y_exact[i] - self.y_imp_euler[i]))
             self.diff_exact_rk.append(abs(self.y_exact[i] - self.y_fk[i]))
+
+
+
+        print("X _ com = " + str(len(self.x_common)))
+        print("Y exac " + str(len(self.y_exact)))
+        print("Y euler " + str(len(self.y_euler)))
+        print("Y imp euler "+ str(len(self.y_imp_euler)))
+        print("Y FK" + str(len(self.y_fk)))
+
+        print("E E " + str(len(self.diff_exact_euler)))
+        print("E IE " + str(len(self.diff_exact_imp_euler)))
+        print("E FK " + str(len(self.diff_exact_rk)))
 
     def build(self, input_parameters, show=False):
         # Main function for building the graph
@@ -72,7 +86,7 @@ class GraphBuilder:
         pylab.grid()
 
         # ------------------------------------------------
-        # Second - Graph of approximation error given by Numeric methods
+        # Second - Graph of Local approximation error given by Numeric methods
         # ------------------------------------------------
 
         pylab.subplot(212)

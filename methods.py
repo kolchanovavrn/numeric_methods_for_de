@@ -31,97 +31,90 @@ class Methods:
     def get_const(self, x0, y0):
         return (y0 + math.sin(x0) * math.cos(x0)) / math.sin(x0)
 
+    def set_x(self, input, table_x):
+        x0 = input[0]
+        X = input[2]
+        h = abs((x0 - X)/input[3])
+
+        curr = x0
+        while curr <= X:
+            table_x.append(curr)
+            curr+=h
+
+
     # Returns the value of Y by founded exact solution
     def exact_solution(self, input, table_x, table_y):
-        # input format - [x_initial, y_initial, diapazone_start, diapazone_end, h]
-        x0 = input[0]
+        # input format - [x_initial, y_initial, diapazone_end, h]
+
+        x0 = table_x[0]
         y0 = input[1]
-        h = input[4]
-        pointer = input[2]
 
         const = self.get_const(x0, y0)
 
-        while (pointer <= input[3]):
-            if not table_y:
-                table_x.append(input[0])
-                table_y.append(input[1])
-            else:
-                x_i = table_x[len(table_x) - 1]
+        for i in table_x:
+            y_curr = math.sin(i) * const - math.sin(i) * math.cos(i)
+            table_y.append(y_curr)
 
-                # general sol is y = sin(x) * C - sin(x) * cos(x)
-                x_next = x_i + h
-                y_next = math.sin(x_next) * const - math.sin(x_next) * math.cos(x_next)
-
-                table_x.append(x_next)
-                table_y.append(y_next)
-                pointer += h
 
     # Retuns the value of Y by Euler Method
-    def euler_method(self, input, table_y):
-        table_x = []
-        h = input[4]
-        pointer = input[2]
-        while (pointer <= input[3]):
-            if not table_y:
-                table_x.append(input[0])
-                table_y.append(input[1])
-            else:
-                x_i = table_x[len(table_x) - 1]
-                y_i = table_y[len(table_y) - 1]
+    def euler_method(self, input, table_x, table_y):
+        x0 = input[0]
+        X = input[2]
+        h = abs((x0 - X)/input[3])
+        y0 = input[1]
 
-                x_next = x_i + h
-                y_next = y_i + h * self.get_value(x_i, y_i)
 
-                table_x.append(x_next)
-                table_y.append(y_next)
-                pointer += h
+        if not table_y:
+            table_y.append(y0)
+
+        index = 1
+        while index < len(table_x):
+            x_prev = table_x[index-1]
+            y_prev = table_y[index-1]
+            table_y.append(y_prev + h * self.get_value(x_prev, y_prev))
+            index+=1
 
     # Returns the value of Y by Improved Euler Method
-    def improved_euler_method(self, input, table_y):
+    def improved_euler_method(self, input, table_x, table_y):
+        x0 = input[0]
+        X = input[2]
+        h = abs((x0 - X)/input[3])
+        y0 = input[1]
 
-        table_x = []
 
-        h = input[4]
-        pointer = input[2]
-        while (pointer <= input[3]):
-            if not table_y:
-                table_x.append(input[0])
-                table_y.append(input[1])
-            else:
-                x_i = table_x[len(table_x) - 1]
-                y_i = table_y[len(table_y) - 1]
-                delta_y = h * self.get_value(x_i + h / 2, y_i + h / 2 * self.get_value(x_i, y_i))
+        if not table_y:
+            table_y.append(y0)
 
-                x_next = x_i + h
-                y_next = y_i + delta_y
+        index = 1
+        while index < len(table_x):
+            x_prev = table_x[index-1]
+            y_prev = table_y[index-1]
 
-                table_x.append(x_next)
-                table_y.append(y_next)
-                pointer += h
-        table = [table_x, table_y]
-        return table
+            delta_y = h * self.get_value(x_prev + h / 2, y_prev + h / 2 * self.get_value(x_prev, y_prev))
+            table_y.append(y_prev + delta_y)
+            index+=1
 
     # Returns the value of Y by Runge Kutta Method
-    def runge_kutta_method(self, input, table_y):
-        table_x = []
-        h = input[4]
-        pointer = input[2]
-        while (pointer <= input[3]):
-            if not table_y:
-                table_x.append(input[0])
-                table_y.append(input[1])
-            else:
-                x_i = table_x[len(table_x) - 1]
-                y_i = table_y[len(table_y) - 1]
-                k1 = self.get_value(x_i, y_i)
-                k2 = self.get_value(x_i + h / 2, y_i + h * k1 / 2)
-                k3 = self.get_value(x_i + h / 2, y_i + h * k2 / 2)
-                k4 = self.get_value(x_i + h, y_i + h * k3)
-                delta_y = h / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
+    def runge_kutta_method(self, input,table_x,  table_y):
 
-                x_next = x_i + h
-                y_next = y_i + delta_y
+        x0 = input[0]
+        X = input[2]
+        h = abs((x0 - X)/input[3])
+        y0 = input[1]
 
-                table_x.append(x_next)
-                table_y.append(y_next)
-                pointer += h
+
+        if not table_y:
+            table_y.append(y0)
+
+        index = 1
+        while index < len(table_x):
+            x_prev = table_x[index-1]
+            y_prev = table_y[index-1]
+
+            k1 = self.get_value(x_prev, y_prev)
+            k2 = self.get_value(x_prev + h / 2, y_prev + h * k1 / 2)
+            k3 = self.get_value(x_prev + h / 2, y_prev + h * k2 / 2)
+            k4 = self.get_value(x_prev + h, y_prev + h * k3)
+            delta_y = h / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
+            table_y.append(y_prev+delta_y)
+            index += 1

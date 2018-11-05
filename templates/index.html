@@ -1,29 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Differential Equations task</title>
-</head>
-<body>
-
-<center><h1> Difference between numerical methods </h1></center>
-
-<form action = "/" method = "POST" style="float:left;width:2s0%">
-
-         <left><h2> Enter values: </h2></left>
-         <p>Initial x <input type = "text" name = "x_initial" value="{{x0}}" /></p>
-         <p>Initial y <input type = "text" name = "y_initial" value="{{y0}}"/></p>
-         <p>Start point <input type = "text" name = "diapazone_start" value="{{start_x}}"/></p>
-         <p>End point <input type ="text" name = "diapazone_end" value="{{end_x}}"/></p>
-         <p> Step <input type ="text" name = "h" value="{{step_x}}"/></p>
-
-         <p><input type = "submit" value = "Build the graphs!" /></p>
-      </form>
-
-{% if show_image %}
-    <img src="static/graphs.png" style="width:80%"/>
-  {% else %}
+    <head>
+        <meta charset="UTF-8">
+        <title>Differential Equations task</title>
+    </head>
+    <body>
+        <center>
+            <h1>Difference between numerical methods </h1>
+        </center>
+        <form action="/" method="POST" style="float:left;width:2s0%">
+            <left>
+                <h2>Enter values: </h2>
+            </left>
+            <p>
+                Initial x <input type="number" step = "any" name="x_initial" value="{{x0}}"/>
+            </p>
+            <p>
+                Initial y <input type="number" step = "any" name="y_initial" value="{{y0}}"/>
+            </p>
+            <p>
+                X <input type="number" step = "any" name="diapazone_end" value="{{end_x}}"/>
+            </p>
+            <p>
+                N <input type="number" step="any" name="h" value="{{step_x}}"/>
+            </p>
+            <p>
+                <input type="submit" value="Build the graphs!"/>
+            </p>
+        </form>
+        {% if show_image %}
+    <img src="static/graphs.png" style="width:80%"/>{% else %}
   {% endif %}
 
-</body>
+
+    </body>
 </html>

@@ -1,6 +1,12 @@
 from graphbuilder import GraphBuilder
 from flask import Flask, render_template, request
 
+# # TESTING PART
+# input_temp = [1, 1,3, 200]
+# builder = GraphBuilder()
+# builder.build(input_temp)
+
+
 app = Flask(__name__)
 
 
@@ -17,8 +23,8 @@ def result():
     if request.method == 'POST':
         dictionary = request.form
 
-        # input - [x_initial, y_initial, diapazone_start, diapazone_end, h]
-        input = [dictionary['x_initial'], dictionary['y_initial'], dictionary['diapazone_start'],
+        # input - [x_initial, y_initial, diapazone_end, h]
+        input = [dictionary['x_initial'], dictionary['y_initial'],
                  dictionary['diapazone_end'], dictionary['h']]
 
         for i in range(len(input)):
@@ -28,8 +34,8 @@ def result():
         builder = GraphBuilder()
         builder.build(input)
 
-        return render_template("index.html", result=input, show_image=True, x0=input[0], y0=input[1], start_x=input[2],
-                               end_x=input[3], step_x=input[4])
+        return render_template("index.html", result=input, show_image=True, x0=input[0], y0=input[1],
+                               end_x=input[2], amount_x=input[3])
     else:
         return render_template("index.html", show_image=False)
 
