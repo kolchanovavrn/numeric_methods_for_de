@@ -22,15 +22,19 @@
                 X <input type="number" step = "any" name="diapazone_end" value="{{end_x}}"/>
             </p>
             <p>
-                N <input type="number" step="any" name="h" value="{{step_x}}"/>
+                N <input type="number" step="any" name="h" value="{{amount_x}}"/>
+            </p>
+            <p>
+                N from <input type="number" step="any" name="N_start" value="{{n_start}}"/> to <input type="number" step="any" name="N_end" value="{{n_end}}"/>
             </p>
             <p>
                 <input type="submit" value="Build the graphs!"/>
             </p>
         </form>
+
         {% if show_image %}
-    <img src="static/graphs.png" style="width:80%"/>{% else %}
-  {% endif %}
+        <img src="static/graphs.png" style="width:80%"/>{% else %}
+        {% endif %}
 
 
     </body>

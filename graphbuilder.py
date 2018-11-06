@@ -1,5 +1,6 @@
 from matplotlib import pyplot as pylab
 from methods import Methods
+from errors import Errors
 
 
 class GraphBuilder:
@@ -22,6 +23,11 @@ class GraphBuilder:
         self.diff_exact_imp_euler = []
         self.diff_exact_rk = []
 
+        self.n_x = []
+        self.n_euler = []
+        self.n_euler_imp = []
+        self.n_rk = []
+
     def set_points(self, input_parameters):
         # Gets and sets all the values* to class parameters
         # Values - x and y for every methods and for error approximation
@@ -35,29 +41,23 @@ class GraphBuilder:
 
         methods.exact_solution(input_parameters, self.x_common, self.y_exact)
         methods.euler_method(input_parameters, self.x_common, self.y_euler)
-        methods.improved_euler_method(input_parameters,self.x_common, self.y_imp_euler)
-        methods.runge_kutta_method(input_parameters,self.x_common, self.y_fk)
+        methods.improved_euler_method(input_parameters, self.x_common, self.y_imp_euler)
+        methods.runge_kutta_method(input_parameters, self.x_common, self.y_fk)
 
         # ------------------------------------------------
         # Set values of Local approximation errors
         # ------------------------------------------------
 
-        for i in range(len(self.y_exact)):
-            self.diff_exact_euler.append(abs(self.y_exact[i] - self.y_euler[i]))
-            self.diff_exact_imp_euler.append(abs(self.y_exact[i] - self.y_imp_euler[i]))
-            self.diff_exact_rk.append(abs(self.y_exact[i] - self.y_fk[i]))
+        errors = Errors()
+        errors.local_error(self.diff_exact_euler, self.y_exact, self.y_euler)
+        errors.local_error(self.diff_exact_imp_euler, self.y_exact, self.y_imp_euler)
+        errors.local_error(self.diff_exact_rk, self.y_exact, self.y_fk)
 
+        # ------------------------------------------------
+        # Set values of Max approximation errors
+        # ------------------------------------------------
 
-
-        print("X _ com = " + str(len(self.x_common)))
-        print("Y exac " + str(len(self.y_exact)))
-        print("Y euler " + str(len(self.y_euler)))
-        print("Y imp euler "+ str(len(self.y_imp_euler)))
-        print("Y FK" + str(len(self.y_fk)))
-
-        print("E E " + str(len(self.diff_exact_euler)))
-        print("E IE " + str(len(self.diff_exact_imp_euler)))
-        print("E FK " + str(len(self.diff_exact_rk)))
+        self.n_x, self.n_euler, self.n_euler_imp, self.n_rk = errors.max_error(input_parameters)
 
     def build(self, input_parameters, show=False):
         # Main function for building the graph
@@ -71,7 +71,7 @@ class GraphBuilder:
 
         pylab.rcParams['figure.figsize'] = (15.0, 20.0)
         pylab.subplots_adjust(hspace=0.5)
-        pylab.subplot(211)
+        pylab.subplot(221)
         exact_line, euler_line, imp_euler_line, fk_line = pylab.plot(self.x_common, self.y_exact, 'm-', self.x_common,
                                                                      self.y_euler, 'b-', self.x_common,
                                                                      self.y_imp_euler, 'g-', self.x_common, self.y_fk,
@@ -89,21 +89,37 @@ class GraphBuilder:
         # Second - Graph of Local approximation error given by Numeric methods
         # ------------------------------------------------
 
-        pylab.subplot(212)
+        pylab.subplot(223)
         err_euler_line, err_imp_euler_line, err_fk_line = pylab.plot(self.x_common, self.diff_exact_euler, 'm-',
                                                                      self.x_common, self.diff_exact_imp_euler, 'b-',
                                                                      self.x_common, self.diff_exact_rk, 'g-')
-        pylab.title(u'Approximation error of numeric methods solution of differential equation')
+        pylab.title(u'Approximation error of numeric methods solution')
         pylab.xlabel(u'x axis')
         pylab.ylabel(u'y axis')
         pylab.legend((err_euler_line, err_imp_euler_line, err_fk_line),
                      (u'Euler Method ', u'Improved Euler Method ', u'Runge-Kutta Method'),
                      loc='best')
 
-        #  figure.figsize и figure.dpi (свойства можно задать, разумеется и через структуру rcParams,
+        pylab.grid()
+
+        # ------------------------------------------------
+        # Third - Graph of Local approximation error given by Numeric methods
+        # ------------------------------------------------
+
+        pylab.subplot(224)
+        max_err_euler, max_err_euler_imp, max_err_rk = pylab.plot(self.n_x, self.n_euler, 'm-',
+                                                                  self.n_x, self.n_euler_imp, 'b-',
+                                                                  self.n_x, self.n_rk, 'g-')
+        pylab.title(u'Dependency between amount of separations and maximum error')
+        pylab.xlabel(u'N amount')
+        pylab.ylabel(u'Maximum error value axis')
+        pylab.legend((max_err_euler, max_err_euler_imp, max_err_rk),
+                     (u'Euler Method ', u'Improved Euler Method ', u'Runge-Kutta Method'),
+                     loc='best')
         pylab.grid()
 
         # Save the resulting image, that contain pictures of both graphs to the special directory
         pylab.savefig('./static/graphs.png', format='png')
+
         if show:
             pylab.show()
